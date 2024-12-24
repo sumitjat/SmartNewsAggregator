@@ -2,7 +2,10 @@ package com.example.smartnewsaggregator.domain.model
 
 import androidx.room.Entity
 
-@Entity(tableName = "articles")
 data class NewsResponse(
-    val id: String = ""
+    val status: String,
+    val totalResults: Int,
+    val articles: List<ArticleResponse>,
+    val code: String? = null,
+    val message: String? = null
 )

@@ -76,5 +76,7 @@ dependencies {
     implementation("com.squareup.moshi:moshi-kotlin:1.15.2")
     implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
 
+    implementation(libs.androidx.work.runtime.ktx)
 
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0")
 }

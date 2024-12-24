@@ -1,12 +1,15 @@
 package com.example.smartnewsaggregator
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.smartnewsaggregator.data.remote.NewsApiService
+import com.example.smartnewsaggregator.domain.usecase.MainViewModel
 import dagger.hilt.EntryPoint
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -17,8 +20,10 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
+    private val viewModel: MainViewModel by viewModels()
+
     @Inject
-   lateinit var apiService: NewsApiService
+    lateinit var apiService: NewsApiService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,9 +35,11 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        lifecycleScope.launch(Dispatchers.IO) {
-            apiService.getTopHeadlines("us","business")
-        }
+        lifecycleScope.launch {
+            viewModel.fetchTopHeadlines().collect { result ->
 
+            }
+
+        }
     }
 }
