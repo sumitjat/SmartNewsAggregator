@@ -3,6 +3,7 @@ package com.example.smartnewsaggregator.di
 import com.example.smartnewsaggregator.utils.ApiKeyInterceptor
 import com.example.smartnewsaggregator.utils.LoggingInterceptor
 import com.example.smartnewsaggregator.data.remote.NewsApiService
+import com.example.smartnewsaggregator.data.repository.NewsRepository
 import com.example.smartnewsaggregator.domain.repository.NewsRepositoryImpl
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -60,6 +61,6 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun providesRepository(apiService: NewsApiService): NewsRepositoryImpl = NewsRepositoryImpl(apiService)
+    fun providesRepository(apiService: NewsApiService): NewsRepository = NewsRepositoryImpl(apiService)
 
 }

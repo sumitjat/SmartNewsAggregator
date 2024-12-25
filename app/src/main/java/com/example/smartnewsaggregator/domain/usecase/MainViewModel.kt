@@ -9,19 +9,30 @@ import com.example.smartnewsaggregator.domain.model.Article
 import com.example.smartnewsaggregator.domain.repository.NewsRepositoryImpl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val newsRepository: NewsRepository
+    private val newsRepository: NewsRepositoryImpl
 ) : ViewModel() {
+
+    // Backing property to avoid state updates from other classes
+    private val _uiState = MutableStateFlow<ApiResult<List<Article>>>(ApiResult.Loading)    // The UI collects from this StateFlow to get its state updates
+    val uiState: StateFlow<ApiResult<List<Article>>> = _uiState
+
+    init {
+        fetchTopHeadlines()
+    }
 
     fun fetchTopHeadlines(): Flow<ApiResult<List<Article>>> = flow {
         viewModelScope.launch {
-            newsRepository.getTopHeadlines().collect { result ->
-                emit(result)
+            newsRepository.getTopHeadlines().collect { collect ->
+                _uiState.value =  collect
             }
         }
     }
