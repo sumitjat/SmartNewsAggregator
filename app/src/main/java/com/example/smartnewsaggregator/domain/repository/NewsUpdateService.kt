@@ -47,7 +47,11 @@ class NewsUpdateService : Service() {
         super.onCreate()
         createNotificationChannel()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            startForeground(SERVICE_ID, createNotification("News Service Running"),FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+            startForeground(
+                SERVICE_ID,
+                createNotification("News Service Running"),
+                FOREGROUND_SERVICE_TYPE_DATA_SYNC
+            )
         }
     }
 
@@ -98,26 +102,28 @@ class NewsUpdateService : Service() {
     }
 
     private fun handleNewsFetch() {
-        // Implement news fetching logic here
+        serviceScope.launch {
+            Log.d("NewsUpdateService", "Checking breaking news")
+            try {
+                updateNotification("Fetching latest news")
+                newsRepository.refreshNews()
+            } catch (e: Exception) {
+                updateNotification("Fetching news check failed: ${e.localizedMessage}")
+            }
+        }
     }
 
     private fun checkBreakingNews() {
         serviceScope.launch {
             Log.d("NewsUpdateService", "Checking breaking news")
             try {
-                newsRepository.getTopHeadlines()
+                newsRepository.getLatestNews()
                     .catch { e ->
                         updateNotification("Error checking breaking news: ${e.localizedMessage}")
                     }
                     .collect { breakingNews ->
-                        when(breakingNews) {
-                            is ApiResult.Error ->  {}
-                            ApiResult.Loading ->  {}
-                            is ApiResult.Success ->  {
-                                breakingNews.data.firstOrNull()?.let {
-                                    showBreakingNewsNotification(it)
-                                }
-                            }
+                        breakingNews.firstOrNull()?.let {
+                            showBreakingNewsNotification(it)
                         }
                     }
             } catch (e: Exception) {
@@ -142,7 +148,8 @@ class NewsUpdateService : Service() {
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .build()
 
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.notify(1234, notification)
     }
 
@@ -150,7 +157,8 @@ class NewsUpdateService : Service() {
     private fun updateNotification(content: String) {
         Log.d("NewsUpdateService", "Updating notification: $content")
         val notification = createNotification(content)
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.notify(NOTIFICATION_ID, notification)
     }
 

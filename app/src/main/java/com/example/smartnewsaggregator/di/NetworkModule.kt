@@ -1,10 +1,14 @@
 package com.example.smartnewsaggregator.di
 
+import com.example.smartnewsaggregator.domain.repository.NewsRepositoryImpl
+import android.app.Application
+import androidx.room.Room
+import com.example.smartnewsaggregator.data.local.NewsDao
+import com.example.smartnewsaggregator.data.local.NewsDatabase
 import com.example.smartnewsaggregator.utils.ApiKeyInterceptor
 import com.example.smartnewsaggregator.utils.LoggingInterceptor
 import com.example.smartnewsaggregator.data.remote.NewsApiService
 import com.example.smartnewsaggregator.data.repository.NewsRepository
-import com.example.smartnewsaggregator.domain.repository.NewsRepositoryImpl
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -61,6 +65,17 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun providesRepository(apiService: NewsApiService): NewsRepository = NewsRepositoryImpl(apiService)
+    fun providesDatabase(app: Application): NewsDatabase = Room.databaseBuilder(
+        app,
+        NewsDatabase::class.java, "database-name"
+    ).build()
+
+    @Provides
+    @Singleton
+    fun providesDao(db: NewsDatabase): NewsDao = db.newsDao()
+
+    @Provides
+    @Singleton
+    fun providesRepository(apiService: NewsApiService, newsDao: NewsDao,app: Application): NewsRepository = NewsRepositoryImpl(apiService,newsDao,app)
 
 }

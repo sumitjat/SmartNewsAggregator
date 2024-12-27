@@ -39,21 +39,24 @@ class MainActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            viewModel.uiState.collect { result ->
+            delay(10000)
+            NewsUpdateService.startService(this@MainActivity)
+        }
+
+        lifecycleScope.launch {
+            viewModel.newsState.collect { result ->
                 Log.d("MainActivity", "Result: $result")
                 when (result) {
-                    is ApiResult.Success -> {
-                        Log.d("MainActivity", "Success: ${result.data}")
-                    }
-
                     is ApiResult.Error -> {
-                        Log.e("MainActivity", "Error: ${result.message}")
-                    }
 
-                    ApiResult.Loading -> {}
+                    }
+                    ApiResult.Loading -> {
+
+                    }
+                    is ApiResult.Success -> {
+
+                    }
                 }
-                delay(1000)
-                NewsUpdateService.startService(this@MainActivity)
             }
         }
     }

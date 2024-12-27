@@ -3,14 +3,17 @@ package com.example.smartnewsaggregator.domain.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
+// ArticleEntity.kt
 @Entity(tableName = "articles")
 data class ArticleEntity(
-    @PrimaryKey val id: String,
+    @PrimaryKey
+    val url: String,  // Using URL as unique identifier
     val title: String,
-    val description: String,
-    val url: String,
-    val imageUrl: String,
+    val description: String?,
+    val urlToImage: String?,
     val publishedAt: String,
-    val category: String,
-    val isBookmarked: Boolean = false
+    val author: String?,
+    val sourceName: String,
+    val content: String?,
+    val lastUpdated: Long = System.currentTimeMillis()
 )
