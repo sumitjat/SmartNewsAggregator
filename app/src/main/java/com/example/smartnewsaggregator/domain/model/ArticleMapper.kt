@@ -1,5 +1,8 @@
 package com.example.smartnewsaggregator.domain.model
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -7,20 +10,32 @@ import java.util.TimeZone
 
 // Mapper to convert API response to domain model
 object ArticleMapper {
-    fun ArticleResponse.toDomainModel(): Article {
-        return Article(
-            id = url, // Using URL as unique identifier
-            title = title,
-            description = description ?: "",
-            url = url,
-            imageUrl = urlToImage ?: "",
-            publishedAt = parseDateTime(publishedAt),
-//            category = NewsCategory.GENERAL, // Default category, can be updated based on source
-            isBookmarked = false
-        )
-    }
 
-    private fun parseDateTime(dateString: String): Date {
+    // Extension function to convert API response to Entity
+    fun ArticleResponse.toEntity() = ArticleEntity(
+        url = url,
+        title = title,
+        description = description,
+        urlToImage = urlToImage,
+        publishedAt = publishedAt,
+        author = author,
+        sourceName = source.name,
+        content = content,
+        lastUpdated = System.currentTimeMillis()
+    )
+
+    // Extension function to convert Entity to Domain model
+    fun ArticleEntity.toDomain() = Article(
+        id = url,
+        title = title,
+        description = description ?: "",
+        url = url,
+        imageUrl = urlToImage ?: "",
+        publishedAt = parseDateTime(publishedAt),
+        isBookmarked = false,
+    )
+
+    fun parseDateTime(dateString: String): Date {
         return try {
             SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
                 .apply { timeZone = TimeZone.getTimeZone("UTC") }
@@ -30,13 +45,12 @@ object ArticleMapper {
         }
     }
 
-    // Extension function to handle API response
-    fun NewsResponse.toArticleList(): List<Article> {
-        return if (status == "ok") {
-            articles.map { it.toDomainModel() }
-        } else {
-            emptyList()
-        }
+    fun isNetworkAvailable(context: Context): Boolean {
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = connectivityManager.activeNetwork ?: return false
+        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 }
 

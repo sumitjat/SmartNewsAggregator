@@ -1,16 +1,15 @@
 package com.example.smartnewsaggregator.domain.repository
 
 import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.util.Log
 import com.example.smartnewsaggregator.data.local.NewsDao
 import com.example.smartnewsaggregator.data.remote.NewsApiService
 import com.example.smartnewsaggregator.data.repository.NewsRepository
 import com.example.smartnewsaggregator.domain.model.ApiResult
 import com.example.smartnewsaggregator.domain.model.Article
-import com.example.smartnewsaggregator.domain.model.ArticleEntity
-import com.example.smartnewsaggregator.domain.model.ArticleResponse
+import com.example.smartnewsaggregator.domain.model.ArticleMapper.isNetworkAvailable
+import com.example.smartnewsaggregator.domain.model.ArticleMapper.toDomain
+import com.example.smartnewsaggregator.domain.model.ArticleMapper.toEntity
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -21,10 +20,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import java.io.IOException
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -91,47 +86,6 @@ class NewsRepositoryImpl @Inject constructor(
                 entities.map { it.toDomain() }
             }
             .flowOn(ioDispatcher)
-    }
-
-    // Extension function to convert API response to Entity
-    private fun ArticleResponse.toEntity() = ArticleEntity(
-        url = url,
-        title = title,
-        description = description,
-        urlToImage = urlToImage,
-        publishedAt = publishedAt,
-        author = author,
-        sourceName = source.name,
-        content = content,
-        lastUpdated = System.currentTimeMillis()
-    )
-
-    // Extension function to convert Entity to Domain model
-    private fun ArticleEntity.toDomain() = Article(
-        id = url,
-        title = title,
-        description = description ?: "",
-        url = url,
-        imageUrl = urlToImage ?: "",
-        publishedAt = parseDateTime(publishedAt),
-        isBookmarked = false,
-    )
-
-    private fun parseDateTime(dateString: String): Date {
-        return try {
-            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
-                .apply { timeZone = TimeZone.getTimeZone("UTC") }
-                .parse(dateString) ?: Date()
-        } catch (e: Exception) {
-            Date()
-        }
-    }
-
-    private fun isNetworkAvailable(context: Context): Boolean {
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val network = connectivityManager.activeNetwork ?: return false
-        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
-        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 }
 
