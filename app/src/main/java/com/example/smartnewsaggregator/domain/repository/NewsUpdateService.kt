@@ -19,6 +19,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
@@ -111,15 +112,23 @@ class NewsUpdateService : Service() {
         serviceScope.launch {
             Log.d("NewsUpdateService", "Checking breaking news")
             try {
-                newsRepository.getLatestNews()
-                    .catch { e ->
-                        updateNotification("Error checking breaking news: ${e.localizedMessage}")
-                    }
-                    .collect { breakingNews ->
-                        breakingNews.firstOrNull()?.let {
-                            showBreakingNewsNotification(it)
+                async {
+                    newsRepository.refreshNews()
+                }.await()
+
+                async {
+                    newsRepository.getLatestNews()
+                        .catch { e ->
+                            updateNotification("Error checking breaking news: ${e.localizedMessage}")
                         }
-                    }
+                        .collect { breakingNews ->
+                            breakingNews.firstOrNull()?.let {
+                                showBreakingNewsNotification(it)
+                            }
+                        }
+                }.await()
+
+
             } catch (e: Exception) {
                 updateNotification("Breaking news check failed: ${e.localizedMessage}")
             }
