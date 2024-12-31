@@ -1,5 +1,6 @@
 package com.example.smartnewsaggregator.utils
 
+import com.example.smartnewsaggregator.BuildConfig
 import okhttp3.Interceptor
 import okhttp3.Response
 
@@ -10,7 +11,7 @@ class ApiKeyInterceptor : Interceptor {
                 .newBuilder()
                 .url(
                     chain.request().url.newBuilder()
-                        .addQueryParameter("apiKey", "535b5a880a094a18b6eae0dac5bd1ad1").build()
+                        .addQueryParameter("apiKey", BuildConfig.API_KEY).build()
                 )
                 .build()
         )

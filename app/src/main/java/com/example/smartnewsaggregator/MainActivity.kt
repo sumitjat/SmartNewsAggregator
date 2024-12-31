@@ -53,13 +53,6 @@ class MainActivity : AppCompatActivity() {
             addItemDecoration(dividerItemDecoration)
         }
 
-
-
-        lifecycleScope.launch {
-            delay(10000)
-            NewsUpdateService.startService(this@MainActivity)
-        }
-
         lifecycleScope.launch {
             viewModel.newsState.collect { result ->
                 Log.d("MainActivity", "Result: $result")
