@@ -17,7 +17,6 @@ import com.example.smartnewsaggregator.domain.repository.NewsUpdateService
 import com.example.smartnewsaggregator.domain.usecase.MainViewModel
 import com.example.smartnewsaggregator.ui.NewsListAdapter
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

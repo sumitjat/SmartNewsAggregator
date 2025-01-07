@@ -35,7 +35,7 @@ object ArticleMapper {
         isBookmarked = false,
     )
 
-    fun parseDateTime(dateString: String): Date {
+    private fun parseDateTime(dateString: String): Date {
         return try {
             SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
                 .apply { timeZone = TimeZone.getTimeZone("UTC") }

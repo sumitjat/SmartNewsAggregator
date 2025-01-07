@@ -1,7 +1,5 @@
 package com.example.smartnewsaggregator.domain.model
 
-import androidx.room.Entity
-
 data class NewsResponse(
     val status: String,
     val totalResults: Int,
